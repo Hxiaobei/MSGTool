@@ -84,12 +84,14 @@
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="Xarial.XCad, Version=0.8.2.5232, Culture=neutral, PublicKeyToken=60dcaf351d4060db, processorArchitecture=MSIL">
       <HintPath>..\packages\Xarial.XCad.0.8.2\lib\net461\Xarial.XCad.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Xarial.XCad.SolidWorks, Version=0.8.2.5232, Culture=neutral, PublicKeyToken=60dcaf351d4060db, processorArchitecture=MSIL">
       <HintPath>..\packages\Xarial.XCad.SolidWorks.0.8.2\lib\net461\Xarial.XCad.SolidWorks.dll</HintPath>
     </Reference>
     <Reference Include="Xarial.XCad.Toolkit, Version=0.8.2.5232, Culture=neutral, PublicKeyToken=60dcaf351d4060db, processorArchitecture=MSIL">
       <HintPath>..\packages\Xarial.XCad.Toolkit.0.8.2\lib\net461\Xarial.XCad.Toolkit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -99,7 +101,9 @@
     <Compile Include="Form_ExportTool.Designer.cs">
       <DependentUpon>Form_ExportTool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SWUtils.cs" />
     <EmbeddedResource Include="Form_ExportTool.resx">
       <DependentUpon>Form_ExportTool.cs</DependentUpon>
     </EmbeddedResource>
@@ -112,6 +116,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

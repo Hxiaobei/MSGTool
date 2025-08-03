@@ -16,30 +16,26 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
 using System.Threading;
 
 namespace MSGTool_SolidWorks {
-    enum SwDocumentTypes {
-        swDocNONE,
-        swDocPART,
-        swDocASSEMBLY,
-        swDocDRAWING,
-        swDocSDM,
-        swDocLAYOUT,
-        swDocSM,
-    }
+
     public partial class Form_ExportTool : Form {
+
         static ISldWorks _SldWorks;
-        static SwDocumentTypes documentTypes = 0;
-        public Form_ExportTool() {
-            InitializeComponent();
-            _SldWorks = SldWorksEx.GetISwApp().Sw;
+        static SwDocumentTypes documentTypes = SwDocumentTypes.swDocNONE;
+        public Form_ExportTool() => InitializeComponent();
+
+        void Form_ExportTool_Load(object sender, EventArgs e) {
+
+            _SldWorks = SWUtils.GetSwApp()?.Sw;
             if(_SldWorks == null) {
                 MessageBox.Show("请打开 solid works 程序！");
                 this.Close();
+                return;
             }
+
             toolStripComboBox1.Text = "工程图";
             toolStripComboBox2.Text = "Pdf";
-            documentTypes = (SwDocumentTypes)3;
-        }
-        void Form_ExportTool_Load(object sender, EventArgs e) {
+            documentTypes = SwDocumentTypes.swDocDRAWING;
+
             progressBar1.Visible = false;
             // 设置 ListView 的视图模式为详细信息视图，因为表头只有在详细信息视图中才会显示
             listView1.View = System.Windows.Forms.View.Details;
@@ -65,22 +61,23 @@ namespace MSGTool_SolidWorks {
 
         void Form1_Resize(object sender, EventArgs e) {
             // 确保 ListView 至少有一列
-            if(listView1.Columns.Count > 0) {
-                // 获取最后一列的索引
-                int lastColumnIndex = listView1.Columns.Count - 1;
+            if(listView1.Columns.Count < 1) return;
 
-                // 计算所有列（除最后一列）的总宽度
-                int totalWidthOfOtherColumns = 0;
-                for(int i = 0; i < listView1.Columns.Count - 1; i++) {
-                    totalWidthOfOtherColumns += listView1.Columns[i].Width;
-                }
+            // 获取最后一列的索引
+            int lastColumnIndex = listView1.Columns.Count - 1;
 
-                // 计算 ListView 的可用宽度
-                int availableWidth = listView1.ClientSize.Width;
+            // 计算所有列（除最后一列）的总宽度
+            int totalWidthOfOtherColumns = 0;
+            for(int i = 0; i < listView1.Columns.Count - 1; i++)
+                totalWidthOfOtherColumns += listView1.Columns[i].Width;
 
-                // 设置最后一列的宽度为剩余宽度
-                listView1.Columns[lastColumnIndex].Width = availableWidth - totalWidthOfOtherColumns;
-            }
+
+            // 计算 ListView 的可用宽度
+            int availableWidth = listView1.ClientSize.Width;
+
+            // 设置最后一列的宽度为剩余宽度
+            listView1.Columns[lastColumnIndex].Width = availableWidth - totalWidthOfOtherColumns;
+
         }
 
         private void 导出ToolStripMenuItem_Click(object sender, EventArgs e) {
