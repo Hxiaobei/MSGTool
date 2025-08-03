@@ -101,6 +101,7 @@
     <Compile Include="Form_ExportTool.Designer.cs">
       <DependentUpon>Form_ExportTool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Handling.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SWUtils.cs" />

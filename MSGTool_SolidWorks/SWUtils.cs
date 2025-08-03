@@ -15,6 +15,10 @@ enum SwDocumentTypes {
 }
 public class SWUtils {
 
+    public const string PrtDoc = ".SLDPRT";
+    public const string AsmDoc = ".SLDASM";
+    public const string DrwDoc = ".SLDDRW";
+
     static ISwApplication ISwApp;
     public static ISwApplication GetSwApp() {
 
