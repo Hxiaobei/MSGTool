@@ -12,6 +12,7 @@ namespace MSGTool_SolidWorks {
 
         public static swDocumentTypes_e DocType { get; set; } = swDocumentTypes_e.swDocNONE;
         public static readonly ISldWorks _SldWorks = SWUtils.GetSwApp()?.Sw;
+        public static bool CommandInProgress { get => _SldWorks.CommandInProgress; set => _SldWorks.CommandInProgress = value; }
         public static bool DocIsClose() {
             if(_SldWorks.ActiveDoc != null) {
                 _SldWorks.SendMsgToUser("为了程序稳定运行请关闭所有打开文件！");
@@ -61,56 +62,43 @@ namespace MSGTool_SolidWorks {
                     break;
             }
             return string.Empty;
-            //_SldWorks.CommandInProgress = false;
-            //_SldWorks.CommandInProgress = false;
         }
 
-        public static bool GetAsmDocs(HashSet<string> paths) {
+        public static bool GetAsmDocs(HashSet<string> paths,out bool? existDrw) {
 
+            existDrw = null;
             if(!(_SldWorks.ActiveDoc is AssemblyDoc asmSwDoc)) {
                 _SldWorks.SendMsgToUser("当前没有活动文档或活动文档不是装配文档");
                 return false;
             }
 
-            _SldWorks.CommandInProgress = true;
-            //顶层 true 所有 false
             var components = (object[])asmSwDoc.GetComponents(false);
-            bool? @bool;
-            bool isAdd;
 
             foreach(Component2 comp2 in components.Cast<Component2>()) {
-
-                isAdd = true;
                 if(comp2 == null) continue;
                 if(!(comp2.GetModelDoc2() is ModelDoc2 modelDoc)) continue;
                 var partPth = modelDoc.GetPathName();
-                paths.Add(partPth);
+                if(!paths.Add(partPth)) continue;
 
-                if(!isAdd) continue;
                 var docType = modelDoc.GetType();
                 var drw = Path.ChangeExtension(partPth, "SLDDRW");
 
                 switch(DocType) {
                     case swDocumentTypes_e.swDocDRAWING:
-                        if(!File.Exists(drw)) continue;
-                        @bool = null;
+                        existDrw = null;
                         break;
                     case swDocumentTypes_e.swDocPART:
-                        if(docType == 2) continue;
-                        @bool = File.Exists(drw);
+                        if(docType == 3) continue;
+                        existDrw = File.Exists(drw);
                         break;
                     case swDocumentTypes_e.swDocASSEMBLY:
-                        if(docType == 2) continue;
-                        @bool = File.Exists(drw);
+                        if(docType == 3) continue;
+                        existDrw = File.Exists(drw);
                         break;
                     default:
-                        //@bool = File.Exists(drw);
-                        break;
+                        continue;
                 }
             }
-
-
-            _SldWorks.CommandInProgress = false;
 
             return paths.Count != 0;
         }
@@ -174,10 +162,7 @@ namespace MSGTool_SolidWorks {
         }
 
         private static bool IsValidFile(string filePath) {
-            // 跳过临时文件（SolidWorks临时文件以~开头）
             if(Path.GetFileName(filePath)[0] == '~') return false;
-
-            // 验证文件扩展名是否符合当前文档类型
             var ext = Path.GetExtension(filePath).ToUpperInvariant();
             switch(DocType) {
                 case swDocumentTypes_e.swDocDRAWING: return ext == SWUtils.DrwDoc;
@@ -186,7 +171,6 @@ namespace MSGTool_SolidWorks {
                 default: return false;
             }
         }
-
 
         public static bool ExcludeDrwDoc(string file)
             => File.Exists(Path.ChangeExtension(file, "SLDDRW"));
