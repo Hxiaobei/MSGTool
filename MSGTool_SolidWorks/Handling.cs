@@ -149,7 +149,10 @@ namespace MSGTool_SolidWorks {
         }
 
         public static void TraverseDirectory(string rootDir) {
+
             if(!Directory.Exists(rootDir)) return;
+
+            Temps.Clear();
             Queue<DirectoryInfo> dirQueue = new Queue<DirectoryInfo>();
             dirQueue.Enqueue(new DirectoryInfo(rootDir));
 

@@ -50,7 +50,7 @@ namespace MSGTool_SolidWorks {
             Resize += MyForm_Resize;
         }
         void MyForm_Resize(object sender, EventArgs e) {
-  
+
             int lastColumnIndex = ListFile.Columns.Count - 1;
             if(lastColumnIndex < 0) return;
 
@@ -89,43 +89,28 @@ namespace MSGTool_SolidWorks {
         }
         private void AddFolder_Click(object sender, EventArgs e) {
 
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog { Description = "请选择一个文件夹" };
-            DialogResult result = folderBrowserDialog.ShowDialog();
-
-            // 处理用户的选择
-            if(result != DialogResult.OK) return;
-
-            string selectedFolder = folderBrowserDialog.SelectedPath;
-            List<string> list = new List<string>();
-
-            Handling.TraverseDirectory(selectedFolder);
-            this.ListFile.BeginUpdate();
-            bool? @bool = null;
-            var count = this.ListFile.Items.Count + 1;
-            bool isAdd;
-            foreach(var file in list) {
-                isAdd = true;
-                foreach(ListViewItem item in this.ListFile.Items) {
-                    if(string.Equals(item.SubItems[3].Text, file, StringComparison.OrdinalIgnoreCase)) {
-                        isAdd = false;
-                        break;
-                    }
-                }
-                if(!isAdd) continue;
-                ListViewItem item1 = new ListViewItem(count.ToString());
-                item1.SubItems.Add(Path.GetFileName(file));
-                if(Handling.DocType == swDocumentTypes_e.swDocDRAWING) {
-                    item1.SubItems.Add(@bool.ToString());
-                } else {
-                    var partPth = Path.ChangeExtension(file, "SLDDRW");
-                    @bool = File.Exists(partPth);
-                    item1.SubItems.Add(@bool.ToString());
-                }
-                item1.SubItems.Add(file);
-                this.ListFile.Items.Add(item1);
-                count++;
+            using(var folderBrowserDialog = new FolderBrowserDialog { Description = "请选择一个文件夹" }) {
+                DialogResult result = folderBrowserDialog.ShowDialog();
+                if(result != DialogResult.OK) return;
+                Handling.TraverseDirectory(folderBrowserDialog.SelectedPath);
             }
-            this.ListFile.EndUpdate();
+
+            ListFile.BeginUpdate();
+
+            foreach(var file in Handling.Temps) {
+
+                ListViewItem item1 = new ListViewItem((ListFile.Items.Count + 1).ToString());
+                item1.SubItems.Add(Path.GetFileName(file));
+                if(Handling.DocType == swDocumentTypes_e.swDocDRAWING) 
+                    item1.SubItems.Add("");
+                else 
+                    item1.SubItems.Add(File.Exists(Path.ChangeExtension(file, "SLDDRW")).ToString());
+
+                item1.SubItems.Add(file);
+
+                ListFile.Items.Add(item1);
+            }
+           ListFile.EndUpdate();
 
         }
         private void Remove_Click(object sender, EventArgs e) {
@@ -165,7 +150,6 @@ namespace MSGTool_SolidWorks {
             Handling.OpenDoc(ListFile.SelectedItems[0].SubItems[3].Text);
         }
         private void SwDocType_SelectedIndexChanged(object sender, EventArgs e) {
-
             string[] extends;
             switch(SwDocType.Text) {
                 case "工程图":
@@ -190,15 +174,15 @@ namespace MSGTool_SolidWorks {
 
                     break;
                 case "零件":
-                    extends = (new string[] { "Stp", "Step", "X_t", "Pdf" });
+                    extends = (new string[] { "Stp", "Step", "X_t", "Pdf", "Png" });
                     Handling.DocType = swDocumentTypes_e.swDocPART;
                     break;
                 case "钣金":
-                    extends = new string[] { "Dxf", "Stp", "Step", "X_t", "Pdf" };
+                    extends = new string[] { "Dxf", "Stp", "Step", "X_t", "Pdf", "Png" };
                     Handling.DocType = swDocumentTypes_e.swDocPART;
                     break;
                 case "装配|零件":
-                    extends = new string[] { "Stp", "Step", "X_t", "Pdf" };
+                    extends = new string[] { "Stp", "Step", "X_t", "Pdf", "Png" };
                     Handling.DocType = swDocumentTypes_e.swDocASSEMBLY;
                     break;
                 default:
