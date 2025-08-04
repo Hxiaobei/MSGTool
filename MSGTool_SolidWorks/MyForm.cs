@@ -139,9 +139,9 @@ namespace MSGTool_SolidWorks {
             //processedFiles++;
             //progressBar1.Value = (int)((double)processedFiles / totalFiles * 100);
 
-            this.ListFile.BeginUpdate();
-            this.ListFile.Items.AddRange(list.ToArray());
-            this.ListFile.EndUpdate();
+            ListFile.BeginUpdate();
+            ListFile.Items.AddRange(list.ToArray());
+            ListFile.EndUpdate();
 
             Bar.Visible = false;
         }
