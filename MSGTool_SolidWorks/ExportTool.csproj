@@ -95,18 +95,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form_ExportTool.cs">
+    <Compile Include="MyForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form_ExportTool.Designer.cs">
-      <DependentUpon>Form_ExportTool.cs</DependentUpon>
+    <Compile Include="MyForm.Designer.cs">
+      <DependentUpon>MyForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Handling.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SWUtils.cs" />
-    <EmbeddedResource Include="Form_ExportTool.resx">
-      <DependentUpon>Form_ExportTool.cs</DependentUpon>
+    <EmbeddedResource Include="MyForm.resx">
+      <DependentUpon>MyForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -13,7 +13,7 @@ namespace MSGTool_SolidWorks {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form_ExportTool());
+            Application.Run(new MyForm());
         }
     }
 }

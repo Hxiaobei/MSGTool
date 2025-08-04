@@ -12,11 +12,10 @@ using SolidWorks.Interop.swconst;
 
 namespace MSGTool_SolidWorks {
 
-    public partial class Form_ExportTool : Form {
+    public partial class MyForm : Form {
 
-        public Form_ExportTool() => InitializeComponent();
-
-        void Form_ExportTool_Load(object sender, EventArgs e) {
+        public MyForm() => InitializeComponent();
+        void MyForm_Load(object sender, EventArgs e) {
 
             if(Handling._SldWorks == null) {
                 MessageBox.Show("请打开 solid works 程序！");
@@ -24,74 +23,71 @@ namespace MSGTool_SolidWorks {
                 return;
             }
 
-            toolStripComboBox1.Text = "工程图";
-            toolStripComboBox2.Text = "Pdf";
+            SwDocType.Text = "工程图";
+            ExtendName.Text = "Pdf";
             Handling.DocType = swDocumentTypes_e.swDocDRAWING;
 
-            progressBar1.Visible = false;
+            Bar.Visible = false;
             // 设置 ListView 的视图模式为详细信息视图，因为表头只有在详细信息视图中才会显示
-            listView1.View = System.Windows.Forms.View.Details;
-            listView1.GridLines = true;
-            listView1.HeaderStyle = ColumnHeaderStyle.Nonclickable; // 禁用表头点击排序
-            listView1.MultiSelect = false;
-            listView1.FullRowSelect = true;
-            listView1.AllowDrop = true;
+            ListFile.View = System.Windows.Forms.View.Details;
+            ListFile.GridLines = true;
+            ListFile.HeaderStyle = ColumnHeaderStyle.Nonclickable; // 禁用表头点击排序
+            ListFile.MultiSelect = false;
+            ListFile.FullRowSelect = true;
+            ListFile.AllowDrop = true;
 
-            listView1.OwnerDraw = false; // 开启自定义绘制
+            ListFile.OwnerDraw = false; // 开启自定义绘制
             // 添加表头列
-            listView1.Columns.Add("序号", 50);
-            listView1.Columns.Add("文件名", 120);
-            listView1.Columns.Add("同名工程图", 50);
-            listView1.Columns.Add("文件路径", 280);
+            ListFile.Columns.Add("序号", 50);
+            ListFile.Columns.Add("文件名", 120);
+            ListFile.Columns.Add("同名工程图", 50);
+            ListFile.Columns.Add("文件路径", 280);
 
             int totalWidthOfOtherColumns = 0;
-            for(int i = 0; i < listView1.Columns.Count - 1; i++) totalWidthOfOtherColumns += listView1.Columns[i].Width;
-            listView1.Columns[listView1.Columns.Count - 1].Width = listView1.ClientSize.Width - totalWidthOfOtherColumns;
+            for(int i = 0; i < ListFile.Columns.Count - 1; i++) totalWidthOfOtherColumns += ListFile.Columns[i].Width;
+            ListFile.Columns[ListFile.Columns.Count - 1].Width = ListFile.ClientSize.Width - totalWidthOfOtherColumns;
             // 处理窗体的 Resize 事件
-            Resize += Form1_Resize;
+            Resize += MyForm_Resize;
         }
-
-        void Form1_Resize(object sender, EventArgs e) {
+        void MyForm_Resize(object sender, EventArgs e) {
   
-            int lastColumnIndex = listView1.Columns.Count - 1;
+            int lastColumnIndex = ListFile.Columns.Count - 1;
             if(lastColumnIndex < 0) return;
 
             int totalWidthOfOtherColumns = 0;
             for(int i = 0; i < lastColumnIndex; i++)
-                totalWidthOfOtherColumns += listView1.Columns[i].Width;
+                totalWidthOfOtherColumns += ListFile.Columns[i].Width;
 
-            listView1.Columns[lastColumnIndex].Width = listView1.ClientSize.Width - totalWidthOfOtherColumns;
+            ListFile.Columns[lastColumnIndex].Width = ListFile.ClientSize.Width - totalWidthOfOtherColumns;
         }
-
-        private void 导出ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Export_Click(object sender, EventArgs e) {
 
             if(!Handling.DocIsClose()) return;
 
-            listView1.BeginUpdate();
-            listView1.Columns.Add("处理结果", 280);
+            ListFile.BeginUpdate();
+            ListFile.Columns.Add("处理结果", 280);
 
-            progressBar1.Value = 0;
-            progressBar1.Visible = true;
-            int totalFiles = listView1.Items.Count;
+            Bar.Value = 0;
+            Bar.Visible = true;
+            int totalFiles = ListFile.Items.Count;
             int processedFiles = 0;
 
-            foreach(ListViewItem item in listView1.Items) {
+            foreach(ListViewItem item in ListFile.Items) {
                 if(item.SubItems.Count < 2) {
                     MessageBox.Show("数据格式错误");
                     return;
                 }
                 processedFiles++;
-                progressBar1.Value = (int)((double)processedFiles / totalFiles * 100);
+                Bar.Value = (int)((double)processedFiles / totalFiles * 100);
                 string fileFullName = item.SubItems[3].Text;
-                var extendName = toolStripComboBox2.Text;
+                var extendName = ExtendName.Text;
 
                 item.SubItems.Add(Handling.FileSwitch(fileFullName, extendName));
             }
 
-            listView1.EndUpdate();
+            ListFile.EndUpdate();
         }
-
-        private void 打开ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void AddFolder_Click(object sender, EventArgs e) {
 
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog { Description = "请选择一个文件夹" };
             DialogResult result = folderBrowserDialog.ShowDialog();
@@ -103,13 +99,13 @@ namespace MSGTool_SolidWorks {
             List<string> list = new List<string>();
 
             Handling.TraverseDirectory(selectedFolder);
-            listView1.BeginUpdate();
+            this.ListFile.BeginUpdate();
             bool? @bool = null;
-            var count = listView1.Items.Count + 1;
+            var count = this.ListFile.Items.Count + 1;
             bool isAdd;
             foreach(var file in list) {
                 isAdd = true;
-                foreach(ListViewItem item in listView1.Items) {
+                foreach(ListViewItem item in this.ListFile.Items) {
                     if(string.Equals(item.SubItems[3].Text, file, StringComparison.OrdinalIgnoreCase)) {
                         isAdd = false;
                         break;
@@ -126,30 +122,26 @@ namespace MSGTool_SolidWorks {
                     item1.SubItems.Add(@bool.ToString());
                 }
                 item1.SubItems.Add(file);
-                listView1.Items.Add(item1);
+                this.ListFile.Items.Add(item1);
                 count++;
             }
-            listView1.EndUpdate();
+            this.ListFile.EndUpdate();
 
         }
-
-        //移除选择项
-        private void toolStripMenuItem2_Click(object sender, EventArgs e) {
-            listView1.BeginUpdate();
-            foreach(ListViewItem item in listView1.SelectedItems)
-                listView1.Items.Remove(item);
-            listView1.EndUpdate();
+        private void Remove_Click(object sender, EventArgs e) {
+            ListFile.BeginUpdate();
+            foreach(ListViewItem item in ListFile.SelectedItems)
+                ListFile.Items.Remove(item);
+            ListFile.EndUpdate();
         }
-        //清空列表
-        private void toolStripMenuItem3_Click(object sender, EventArgs e) {
-            listView1.Items.Clear();
+        private void Clear_Click(object sender, EventArgs e) {
+            ListFile.Items.Clear();
         }
-
-        private void 添加当前装配ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void AddAsm_Click(object sender, EventArgs e) {
 
             var list = new List<ListViewItem>();
-            progressBar1.Value = 0;
-            progressBar1.Visible = true;
+            Bar.Value = 0;
+            Bar.Visible = true;
 
             //ListViewItem item1 = new ListViewItem(count.ToString());
             //item1.SubItems.Add(fileName);
@@ -162,33 +154,31 @@ namespace MSGTool_SolidWorks {
             //processedFiles++;
             //progressBar1.Value = (int)((double)processedFiles / totalFiles * 100);
 
-            listView1.BeginUpdate();
-            listView1.Items.AddRange(list.ToArray());
-            listView1.EndUpdate();
+            this.ListFile.BeginUpdate();
+            this.ListFile.Items.AddRange(list.ToArray());
+            this.ListFile.EndUpdate();
 
-            progressBar1.Visible = false;
+            Bar.Visible = false;
         }
-
-        private void solidworksToolStripMenuItem_Click(object sender, EventArgs e) {
-            if(listView1.Items.Count < 1) return;
-            Handling.OpenDoc(listView1.SelectedItems[0].SubItems[3].Text);
+        private void SwOPen_Click(object sender, EventArgs e) {
+            if(ListFile.Items.Count < 1) return;
+            Handling.OpenDoc(ListFile.SelectedItems[0].SubItems[3].Text);
         }
-
-        private void toolStripComboBox1_SelectedIndexChanged(object sender, EventArgs e) {
+        private void SwDocType_SelectedIndexChanged(object sender, EventArgs e) {
 
             string[] extends;
-            switch(toolStripComboBox1.Text) {
+            switch(SwDocType.Text) {
                 case "工程图":
                     extends = new string[] { "Pdf", "Dxf", "Dwg", "Png" };
                     Handling.DocType = swDocumentTypes_e.swDocDRAWING;
 
-                    listView1.BeginUpdate();
+                    ListFile.BeginUpdate();
 
-                    foreach(ListViewItem item in listView1.Items) {
+                    foreach(ListViewItem item in ListFile.Items) {
                         if(item.SubItems[2].Text == "") continue;
                         bool.TryParse(item.SubItems[2].Text, out var isDrw);
                         if(!isDrw) {
-                            listView1.Items.Remove(item);
+                            ListFile.Items.Remove(item);
                         } else {
                             item.SubItems[3].Text = Path.ChangeExtension(item.SubItems[3].Text, "SLDDRW");
                             item.SubItems[2].Text = "";
@@ -196,7 +186,7 @@ namespace MSGTool_SolidWorks {
                         }
                     }
 
-                    listView1.EndUpdate();
+                    ListFile.EndUpdate();
 
                     break;
                 case "零件":
@@ -214,17 +204,14 @@ namespace MSGTool_SolidWorks {
                 default:
                     return;
             }
-            toolStripComboBox2.Items.Clear();
-            toolStripComboBox2.Items.AddRange(extends);
-            toolStripComboBox2.Text = extends[0];
+            ExtendName.Items.Clear();
+            ExtendName.Items.AddRange(extends);
+            ExtendName.Text = extends[0];
         }
-
-        private void 设置ToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void Options_Click(object sender, EventArgs e) {
             //设置选项增加属性过滤
         }
-
-        //接收拖住拽文件
-        private void listView1_DragDrop(object sender, DragEventArgs e) {
+        private void ListFile_DragDrop(object sender, DragEventArgs e) {
 
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             Handling.Temps.Clear();
@@ -237,11 +224,11 @@ namespace MSGTool_SolidWorks {
                 return;
             }
 
-            listView1.BeginUpdate();
+            ListFile.BeginUpdate();
 
             foreach(var file in Handling.Temps) {
 
-                ListViewItem item = new ListViewItem((listView1.Items.Count + 1).ToString());
+                ListViewItem item = new ListViewItem((ListFile.Items.Count + 1).ToString());
 
                 item.SubItems.Add(Path.GetFileName(file));
 
@@ -252,14 +239,12 @@ namespace MSGTool_SolidWorks {
 
                 item.SubItems.Add(file);
 
-                listView1.Items.Add(item);
+                ListFile.Items.Add(item);
             }
 
-            listView1.EndUpdate();
+            ListFile.EndUpdate();
         }
-
-        //接收拖住拽文件
-        private void listView1_DragEnter(object sender, DragEventArgs e) {
+        private void ListFile_DragEnter(object sender, DragEventArgs e) {
             if(e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
 
