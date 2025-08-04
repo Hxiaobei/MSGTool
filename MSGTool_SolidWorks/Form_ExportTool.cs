@@ -52,23 +52,15 @@ namespace MSGTool_SolidWorks {
         }
 
         void Form1_Resize(object sender, EventArgs e) {
-            // 确保 ListView 至少有一列
-            if(listView1.Columns.Count < 1) return;
-
-            // 获取最后一列的索引
+  
             int lastColumnIndex = listView1.Columns.Count - 1;
+            if(lastColumnIndex < 0) return;
 
-            // 计算所有列（除最后一列）的总宽度
             int totalWidthOfOtherColumns = 0;
-            for(int i = 0; i < listView1.Columns.Count - 1; i++)
+            for(int i = 0; i < lastColumnIndex; i++)
                 totalWidthOfOtherColumns += listView1.Columns[i].Width;
 
-
-            // 计算 ListView 的可用宽度
-            int availableWidth = listView1.ClientSize.Width;
-
-            // 设置最后一列的宽度为剩余宽度
-            listView1.Columns[lastColumnIndex].Width = availableWidth - totalWidthOfOtherColumns;
+            listView1.Columns[lastColumnIndex].Width = listView1.ClientSize.Width - totalWidthOfOtherColumns;
         }
 
         private void 导出ToolStripMenuItem_Click(object sender, EventArgs e) {
